@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: {{ .Values.app.db.host }}
+            - name: DB_PORT
+              value: "{{ .Values.app.db.port }}"
+            - name: DB_NAME
+              value: {{ .Values.app.db.name }}
+            - name: DB_USER
+              value: {{ .Values.app.db.user }}
+            - name: DB_PASS
+              value: {{ .Values.app.db.password }}
+            - name: MINIO_URL
+              value: {{ .Values.app.minio.url }}
+            - name: MINIO_ACCESS_KEY
+              value: {{ .Values.app.minio.accessKey }}
+            - name: MINIO_SECRET_KEY
+              value: {{ .Values.app.minio.secretKey }}
+            - name: MINIO_BUCKET
+              value: {{ .Values.app.minio.bucket }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30

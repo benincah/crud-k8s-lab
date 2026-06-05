@@ -1,0 +1,33 @@
+replicaCount: 2
+
+image:
+  repository: localhost:5000/crud-k8s-lab
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  host: crud-app.local
+
+app:
+  db:
+    host: postgres
+    port: 5432
+    name: crudlab
+    user: postgres
+    password: postgres
+  minio:
+    url: http://minio:9000
+    accessKey: minioadmin
+    secretKey: minioadmin
+    bucket: produtos
+
+postgres:
+  enabled: true
+
+minio:
+  enabled: true
