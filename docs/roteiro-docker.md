@@ -25,7 +25,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Stage 2: Runtime
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
@@ -42,7 +42,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 | `RUN mvn dependency:go-offline` | Baixa dependências. Se pom.xml não mudar, usa cache |
 | `COPY src ./src` | Copia o código fonte |
 | `RUN mvn package -DskipTests` | Compila e gera o .jar |
-| `FROM eclipse-temurin:17-jre-alpine` | **Novo estágio!** Imagem mínima só com JRE (sem Maven, sem código fonte) |
+| `FROM eclipse-temurin:17-jre-jammy` | **Novo estágio!** Imagem mínima só com JRE (sem Maven, sem código fonte) |
 | `COPY --from=build /app/target/*.jar app.jar` | Copia APENAS o .jar do estágio anterior |
 | `EXPOSE 8080` | Documenta que o container usa porta 8080 |
 | `ENTRYPOINT ["java", "-jar", "app.jar"]` | Comando que roda quando o container inicia |
