@@ -1,0 +1,6 @@
+Para restaurar as extensões futuramente, basta rodar:
+
+    cat bkpvscode/extensions.txt | xargs -L 1 code --install-extension
+
+O settings.json, copiar para
+    Para ~/Library/Application Support/Code/User/settings.json
