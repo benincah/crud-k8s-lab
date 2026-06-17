@@ -11,8 +11,9 @@
 | Rede | IP do WSL | `localhost` direto |
 | Arquitetura | amd64 | arm64 (todas as imagens usadas já suportam) |
 
-> ✅ **Boa notícia:** Nenhuma alteração no código, Dockerfile, docker-compose.yml ou YAMLs K8s é necessária.
-> Todas as imagens base já possuem variantes `linux/arm64`.
+> ✅ **Boa notícia:** Nenhuma alteração no código ou YAMLs K8s é necessária.
+> O Dockerfile já usa `eclipse-temurin:17-jre-jammy` (Ubuntu-based) que tem suporte nativo ARM64.
+> A imagem Alpine anterior (`17-jre-alpine`) não tinha variante para Apple Silicon — por isso foi substituída.
 
 ---
 
@@ -169,10 +170,6 @@ sudo sh -c 'echo "127.0.0.1 crud-app.local" >> /etc/hosts'
 kubectl port-forward -n crud-lab svc/crud-app 8080:80
 curl http://localhost:8080/api/produtos
 ```
-
----
-
----
 
 ---
 

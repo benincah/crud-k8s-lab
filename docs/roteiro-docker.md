@@ -52,7 +52,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 | Abordagem | Tamanho da imagem |
 |-----------|-------------------|
 | Estágio único (Maven + JDK + código) | ~800MB |
-| Multi-stage (só JRE + .jar) | ~180MB |
+| Multi-stage (só JRE + .jar) | ~280MB |
 
 O primeiro estágio compila. O segundo estágio só tem o resultado. Código fonte, Maven, e JDK ficam de fora da imagem final.
 
@@ -157,6 +157,17 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
 
+  # ─── ADMINISTRAÇÃO DO BANCO ─────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"              # Acesse http://localhost:5050
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - postgres              # Só inicia após postgres subir
+
 # ─── VOLUMES NOMEADOS ───────────────────────────────
 volumes:
   pgdata:       # Dados do PostgreSQL persistem mesmo após "docker compose down"
@@ -250,18 +261,20 @@ docker compose up --build
         │
         ├── Builda imagem da "app" usando Dockerfile
         │       ├── Stage 1: Maven compila → gera .jar
-        │       └── Stage 2: JRE + .jar → imagem final (~180MB)
+        │       └── Stage 2: JRE + .jar → imagem final (~280MB)
         │
         ├── Puxa imagem "postgres:16-alpine" do Docker Hub
         ├── Puxa imagem "minio/minio" do Docker Hub
         ├── Puxa imagem "prom/prometheus" do Docker Hub
         ├── Puxa imagem "grafana/grafana" do Docker Hub
+        ├── Puxa imagem "dpage/pgadmin4" do Docker Hub
         │
         └── Cria rede interna + inicia todos os containers
                 ├── postgres (espera healthcheck)
                 ├── minio
                 ├── prometheus
                 ├── grafana
+                ├── pgadmin (após postgres subir)
                 └── app (inicia após postgres healthy)
 ```
 

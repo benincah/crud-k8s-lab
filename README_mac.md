@@ -84,6 +84,14 @@ curl http://localhost:8080/api/produtos
 | MinIO Console | http://localhost:9001 | minioadmin / minioadmin |
 | Grafana | http://localhost:3000 | admin / admin |
 | Prometheus | http://localhost:9090 | - |
+| pgAdmin | http://localhost:5050 | admin@admin.com / admin |
+
+### Configurar pgAdmin
+
+1. Acesse `http://localhost:5050` (admin@admin.com / admin)
+2. **Add New Server** → Name: `crud-lab`
+3. Aba **Connection**: Host `postgres`, Port `5432`, User `postgres`, Password `postgres`
+4. Navegue em Databases > crudlab > Schemas > Tables
 
 ```bash
 docker compose down

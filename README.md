@@ -84,6 +84,7 @@ ls target/*.jar
 O docker-compose.yml sobe TUDO que você precisa como container:
 - App Java
 - PostgreSQL
+- pgAdmin (interface visual para o banco)
 - MinIO (object storage)
 - Prometheus (coleta métricas)
 - Grafana (dashboards)
@@ -114,6 +115,18 @@ curl http://localhost:8080/actuator/prometheus
 | MinIO Console | http://localhost:9001 | minioadmin / minioadmin |
 | Grafana | http://localhost:3000 | admin / admin |
 | Prometheus | http://localhost:9090 | - |
+| pgAdmin | http://localhost:5050 | admin@admin.com / admin |
+
+### Configurar pgAdmin para acessar o banco
+
+1. Acesse `http://localhost:5050` (admin@admin.com / admin)
+2. **Add New Server** → Name: `crud-lab`
+3. Aba **Connection**:
+   - Host: `postgres` (nome do serviço no compose)
+   - Port: `5432`
+   - Username: `postgres`
+   - Password: `postgres`
+4. Clique **Save** → navegue em Databases > crudlab > Schemas > Tables
 
 ### Configurar Grafana para ver métricas da app
 
