@@ -523,5 +523,8 @@ Até agora você usou `kubectl` para tudo. Uma GUI permite ver tudo de uma vez, 
 | [`docs/roteiro-kubernetes.md`](docs/roteiro-kubernetes.md) | Conceitos K8s (Pod, Deployment, Service, Ingress, Secret) |
 | [`docs/roteiro-minio.md`](docs/roteiro-minio.md) | Object storage, buckets, upload |
 | [`docs/roteiro-lens.md`](docs/roteiro-lens.md) | LENS, k9s, GUI para Kubernetes |
+| [`docs/roteiro-rancher_dataprev_stack.md`](docs/roteiro-rancher_dataprev_stack.md) | Rancher, RBAC, TLS, cert-manager |
+| [`docs/roteiro-elk_dataprev_stack.md`](docs/roteiro-elk_dataprev_stack.md) | EFK, logs centralizados, Kibana |
 | [`docs/roteiro-springboot.md`](docs/roteiro-springboot.md) | Código Java, Spring Boot, anotações |
+| [`docs/roteiro-maven.md`](docs/roteiro-maven.md) | Maven, pom.xml, dependências, lifecycle, build |
 | [`docs/roteiro-docker.md`](docs/roteiro-docker.md) | Dockerfile, Docker Compose |

@@ -45,3 +45,9 @@ pgadmin:
 
 serviceMonitor:
   enabled: true
+
+efk:
+  enabled: true
+  ingress:
+    enabled: true
+    host: kibana.local

@@ -46,6 +46,12 @@
             <artifactId>minio</artifactId>
             <version>8.5.9</version>
         </dependency>
+        <!-- Logs em formato JSON para coleta pelo Fluentd/EFK -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.4</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -3,6 +3,8 @@ package com.lab.crud.controller;
 import com.lab.crud.model.Produto;
 import com.lab.crud.repository.ProdutoRepository;
 import io.minio.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/produtos")
 public class ProdutoController {
+
+    private static final Logger log = LoggerFactory.getLogger(ProdutoController.class);
 
     private final ProdutoRepository repository;
     private final MinioClient minioClient;
@@ -27,11 +31,13 @@ public class ProdutoController {
 
     @GetMapping
     public List<Produto> listar() {
+        log.info("Listando todos os produtos");
         return repository.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Produto> buscar(@PathVariable Long id) {
+        log.info("Buscando produto id={}", id);
         return repository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -39,11 +45,13 @@ public class ProdutoController {
 
     @PostMapping
     public Produto criar(@RequestBody Produto produto) {
+        log.info("Criando produto: {}", produto.getNome());
         return repository.save(produto);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Produto> atualizar(@PathVariable Long id, @RequestBody Produto produto) {
+        log.info("Atualizando produto id={}", id);
         return repository.findById(id).map(p -> {
             p.setNome(produto.getNome());
             p.setDescricao(produto.getDescricao());
@@ -54,6 +62,7 @@ public class ProdutoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        log.info("Deletando produto id={}", id);
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -61,6 +70,7 @@ public class ProdutoController {
 
     @PostMapping("/{id}/upload")
     public ResponseEntity<Produto> upload(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws Exception {
+        log.info("Upload arquivo '{}' para produto id={}", file.getOriginalFilename(), id);
         Produto produto = repository.findById(id).orElse(null);
         if (produto == null) return ResponseEntity.notFound().build();
 

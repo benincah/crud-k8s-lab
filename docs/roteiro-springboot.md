@@ -148,6 +148,7 @@ O Spring cria a implementação em tempo de execução (proxy). Você nunca prec
 @RestController
 @RequestMapping("/api/produtos")
 public class ProdutoController {
+    private static final Logger log = LoggerFactory.getLogger(ProdutoController.class);
     private final ProdutoRepository repository;
     private final MinioClient minioClient;
     // ...
@@ -156,6 +157,9 @@ public class ProdutoController {
 
 ### O que faz?
 Expõe a API HTTP. Cada método é um endpoint que o `curl` (ou frontend) chama.
+
+### Por que o Logger?
+Spring Boot **não loga requests HTTP automaticamente** em nível INFO. Sem o `log.info(...)` explícito, ferramentas como EFK não capturam atividade de requests. O Logger usa SLF4J e emite em formato JSON quando o profile `json` está ativo.
 
 ### Anotações da classe:
 

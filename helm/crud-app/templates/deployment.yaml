@@ -41,6 +41,8 @@ spec:
               value: {{ .Values.app.minio.secretKey }}
             - name: MINIO_BUCKET
               value: {{ .Values.app.minio.bucket }}
+            - name: SPRING_PROFILES_ACTIVE
+              value: json
           readinessProbe:
             httpGet:
               path: /actuator/health
