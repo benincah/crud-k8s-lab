@@ -137,25 +137,61 @@ public ResponseEntity<Produto> upload(@PathVariable Long id, @RequestParam("file
 
 ## 5. Console Web do MinIO
 
-Acesse `http://localhost:9001` (minioadmin/minioadmin):
+Acesse no browser:
+- **Docker Compose:** `http://localhost:9001`
+- **Kubernetes (Ingress):** `http://minio.local`
+- **Kubernetes (port-forward):** `kubectl port-forward -n crud-lab svc/minio 9001:9001` → `http://localhost:9001`
 
-- **Buckets** → criar/listar buckets
+Credenciais: minioadmin / minioadmin
+
 - **Object Browser** → navegar arquivos dentro dos buckets
+- **Buckets** → criar/listar buckets
 - **Access Keys** → criar chaves para outras aplicações
 - **Monitoring** → métricas do MinIO
 
-### Criar bucket manualmente:
+### Criar bucket pelo Console:
 
 1. Acesse o Console
 2. **Buckets > Create Bucket**
 3. Nome: `produtos`
 4. **Create**
 
-> A app também pode criar o bucket programaticamente se ele não existir.
+---
+
+## 6. Criar bucket no Kubernetes (pod temporário)
+
+No Kubernetes, você não tem o `mc` instalado na sua máquina, e o MinIO só é acessível dentro do cluster (via `minio:9000`). A solução é criar um **pod temporário** que roda o `mc` dentro do cluster:
+
+```bash
+kubectl run minio-mc -n crud-lab --image=minio/mc --restart=Never --command -- \
+  sh -c "mc alias set myminio http://minio:9000 minioadmin minioadmin && mc mb myminio/produtos"
+```
+
+### O que acontece aqui?
+
+1. `kubectl run minio-mc` → cria um pod chamado `minio-mc`
+2. `--image=minio/mc` → usa a imagem oficial do MinIO Client
+3. `--restart=Never` → roda uma vez e para (não reinicia em loop)
+4. `mc alias set` → configura a conexão com o MinIO do cluster
+5. `mc mb myminio/produtos` → cria o bucket
+
+### Por que limpar o pod depois?
+
+```bash
+kubectl delete pod minio-mc -n crud-lab
+```
+
+O pod com `--restart=Never` **não se deleta sozinho** após terminar — ele fica com status `Completed` ocupando espaço na listagem. A limpeza é boa prática para não poluir o namespace com pods mortos.
+
+> 💡 **Analogia:** é como chamar um eletricista (pod temporário) para instalar uma tomada (criar bucket). Depois que ele termina o serviço, você não precisa mais dele ali — então ele vai embora (delete).
+
+### Alternativa: criar pelo Console web
+
+Se preferir não usar CLI, acesse http://minio.local → **Buckets > Create Bucket** → nome `produtos` → **Create**.
 
 ---
 
-## 6. MinIO CLI (mc)
+## 7. MinIO CLI (mc) — uso local
 
 ```bash
 # Instalar
@@ -186,7 +222,7 @@ mc stat local/produtos/1/manual.pdf
 
 ---
 
-## 7. MinIO vs S3 (Amazon)
+## 8. MinIO vs S3 (Amazon)
 
 | Aspecto | MinIO | Amazon S3 |
 |---------|-------|-----------|
@@ -200,7 +236,7 @@ mc stat local/produtos/1/manual.pdf
 
 ---
 
-## 8. Boas práticas
+## 9. Boas práticas
 
 - **Não armazene arquivos no banco de dados** — use object storage (MinIO/S3)
 - **Use nomes de bucket descritivos** — `produtos`, `backups`, `logs`

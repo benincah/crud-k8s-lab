@@ -40,7 +40,7 @@ metadata:
 spec:
   containers:
     - name: app
-      image: localhost:5000/crud-k8s-lab:latest
+      image: localhost:5001/crud-k8s-lab:latest
       ports:
         - containerPort: 8080
 ```
@@ -81,7 +81,7 @@ spec:
     spec:
       containers:
         - name: crud-app
-          image: localhost:5000/crud-k8s-lab:latest   # Imagem Docker
+          image: localhost:5001/crud-k8s-lab:latest   # Imagem Docker
           ports:
             - containerPort: 8080                      # Porta do container
           env:                                         # Variáveis de ambiente
@@ -192,6 +192,7 @@ metadata:
   name: crud-app
   namespace: crud-lab
 spec:
+  ingressClassName: nginx
   rules:
     - host: crud-app.local          # Quando acessar este domínio...
       http:
@@ -209,6 +210,7 @@ spec:
 
 ```yaml
 spec:
+  ingressClassName: nginx
   rules:
     - host: crud-app.local
       http:

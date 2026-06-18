@@ -16,9 +16,14 @@ helm/crud-app/
 ├── Chart.yaml              # Metadados do chart (nome, versão)
 ├── values.yaml             # Valores padrão (configuráveis)
 └── templates/              # Templates YAML com variáveis
-    ├── deployment.yaml
-    └── service.yaml
+    ├── deployment.yaml     # App Java (Spring Boot)
+    ├── service.yaml        # Service + Ingress da app
+    ├── postgres.yaml       # PostgreSQL (Deployment + Secret + Service)
+    ├── minio.yaml          # MinIO (Deployment + Service)
+    └── pgadmin.yaml        # pgAdmin (Deployment + Service)
 ```
+
+> 💡 **Por que a infra está dentro do chart?** Porque o `helm install` deve subir tudo que a app precisa para funcionar. Sem o PostgreSQL e MinIO rodando, a app entra em `CrashLoopBackOff`. Incluir tudo no chart garante que um único comando cria o ambiente completo.
 
 ---
 
@@ -47,7 +52,7 @@ Este é o "painel de controle" do chart. Quem instala pode sobrescrever qualquer
 replicaCount: 2                    # Quantos pods da app
 
 image:
-  repository: localhost:5000/crud-k8s-lab    # Imagem Docker
+  repository: localhost:5001/crud-k8s-lab    # Imagem Docker
   tag: latest                                 # Tag da imagem
   pullPolicy: Always                          # Sempre puxa a imagem
 
@@ -71,6 +76,17 @@ app:
     accessKey: minioadmin
     secretKey: minioadmin
     bucket: produtos
+
+postgres:
+  enabled: true                    # Subir PostgreSQL junto com a app
+
+minio:
+  enabled: true                    # Subir MinIO junto com a app
+
+pgadmin:
+  enabled: true                    # Subir pgAdmin (cliente visual do banco)
+  email: admin@admin.com           # Login do pgAdmin
+  password: admin                  # Senha do pgAdmin
 ```
 
 ### Como sobrescrever valores na instalação:
@@ -116,7 +132,7 @@ spec:
       containers:
         - name: app
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          # Resultado: "localhost:5000/crud-k8s-lab:latest"
+          # Resultado: "localhost:5001/crud-k8s-lab:latest"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8080
@@ -171,6 +187,7 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-app
 spec:
+  ingressClassName: nginx
   rules:
     - host: {{ .Values.ingress.host }}       # → "crud-app.local"
       http:
@@ -184,6 +201,54 @@ spec:
                   number: {{ .Values.service.port }}
 {{- end }}
 ```
+
+### Templates de infraestrutura (postgres.yaml, minio.yaml, pgadmin.yaml)
+
+A app depende de PostgreSQL e MinIO para funcionar. Sem eles, os pods entram em `CrashLoopBackOff`. Por isso o chart inclui templates para toda a infra.
+
+Cada template usa condicional `{{- if .Values.xxx.enabled }}` — se você setar `postgres.enabled: false` no values.yaml, o PostgreSQL não é criado (ex: quando usar um banco externo/gerenciado).
+
+**postgres.yaml** — cria Secret + Deployment + Service:
+```yaml
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+stringData:
+  POSTGRES_DB: {{ .Values.app.db.name }}
+  POSTGRES_USER: {{ .Values.app.db.user }}
+  POSTGRES_PASSWORD: {{ .Values.app.db.password }}
+---
+# Deployment e Service do PostgreSQL
+# Imagem: postgres:16-alpine
+# Porta: 5432
+{{- end }}
+```
+
+**minio.yaml** — cria Deployment + Service:
+```yaml
+{{- if .Values.minio.enabled }}
+# Imagem: minio/minio
+# Portas: 9000 (API) e 9001 (Console)
+# Credenciais vem de .Values.app.minio.accessKey/secretKey
+{{- end }}
+```
+
+**pgadmin.yaml** — cria Deployment + Service:
+```yaml
+{{- if .Values.pgadmin.enabled }}
+# Imagem: dpage/pgadmin4
+# Porta: 80 (interna) → Service exposto na 5050
+# Credenciais vem de .Values.pgadmin.email/password
+{{- end }}
+```
+
+> 💡 **Acessar no K8s (Docker Desktop):** Use port-forward para acessar pgAdmin e MinIO:
+> ```bash
+> kubectl port-forward -n crud-lab svc/pgadmin 5050:5050 &
+> kubectl port-forward -n crud-lab svc/minio 9001:9001 &
+> ```
 
 ---
 
@@ -240,23 +305,70 @@ helm template crud-lab ./helm/crud-app
 # ─── VALIDAR CHART ────────────────────────────────
 helm lint ./helm/crud-app
 
-# ─── ATUALIZAR (após mudar values ou templates) ───
-helm upgrade crud-lab ./helm/crud-app -n crud-lab
-
-# ─── VER HISTÓRICO DE RELEASES ────────────────────
-helm history crud-lab -n crud-lab
-
-# ─── ROLLBACK ─────────────────────────────────────
-helm rollback crud-lab 1 -n crud-lab    # Volta para revisão 1
-
-# ─── DESINSTALAR ──────────────────────────────────
-helm uninstall crud-lab -n crud-lab
-
 # ─── INSTALAR CHARTS DE TERCEIROS ─────────────────
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm search repo prometheus
 helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring
+```
+
+---
+
+## 9. Comandos de manutenção (referência)
+
+> ⚠️ Esses comandos NÃO são para executar em sequência. Use conforme a situação.
+
+### `helm upgrade` — Quando usar?
+
+Use após modificar `values.yaml` ou qualquer arquivo em `templates/`. Aplica as mudanças sem destruir e recriar tudo.
+
+```bash
+helm upgrade crud-lab ./helm/crud-app -n crud-lab
+```
+
+**Exemplos de quando usar:**
+- Mudou `replicaCount` de 2 para 3
+- Atualizou a tag da imagem
+- Adicionou uma variável de ambiente nova
+
+### `helm history` — Quando usar?
+
+Use para ver o histórico de todas as versões (revisões) instaladas. Útil antes de fazer rollback.
+
+```bash
+helm history crud-lab -n crud-lab
+```
+
+### `helm rollback` — Quando usar?
+
+Use quando um `upgrade` quebrou algo e você quer voltar para a versão anterior que estava funcionando.
+
+```bash
+# Ver revisões disponíveis
+helm history crud-lab -n crud-lab
+
+# Voltar para revisão 1 (ou qualquer outra)
+helm rollback crud-lab 1 -n crud-lab
+```
+
+**Exemplos de quando usar:**
+- Fez upgrade e a app parou de funcionar
+- Mudou uma config errada e quer reverter rápido
+
+### `helm uninstall` — Quando usar?
+
+Use APENAS quando quiser destruir completamente o ambiente. Remove todos os recursos criados pelo chart.
+
+```bash
+helm uninstall crud-lab -n crud-lab
+```
+
+**Exemplos de quando usar:**
+- Terminou os estudos e quer limpar o cluster
+- Vai recriar do zero com configurações diferentes
+- Quer liberar recursos do cluster
+
+> ⚠️ Após `uninstall`, os dados do PostgreSQL e MinIO são perdidos (a menos que usem PersistentVolumes)
 ```
 
 ---
@@ -280,7 +392,7 @@ spec:
   ...
     containers:
       - name: app
-        image: "localhost:5000/crud-k8s-lab:latest"   # ← .Values.image.*
+        image: "localhost:5001/crud-k8s-lab:latest"   # ← .Values.image.*
 ```
 
 Se algo estiver errado, você vê aqui antes de aplicar no cluster.

@@ -100,10 +100,12 @@ source ~/.zshrc
 
 ```bash
 # --restart=unless-stopped: reinicia junto com o Docker, mas NÃO inicia o Docker no boot
-docker run -d -p 5000:5000 --restart=unless-stopped --name registry registry:2
+# Porta 5001 no host porque macOS usa a 5000 para AirPlay Receiver
+docker run -d -p 5001:5000 --restart=unless-stopped --name registry registry:2
 ```
 
 > O registry reinicia automaticamente quando você abre o Docker Desktop, mas **não força** o Docker a iniciar no boot.
+> ⚠️ Usamos porta **5001** porque o macOS reserva a 5000 para o AirPlay Receiver.
 
 ---
 
@@ -134,14 +136,14 @@ Tudo acessa via `localhost` normalmente (não precisa descobrir IP como no WSL).
 
 ```bash
 docker build -t crud-k8s-lab:latest .
-docker tag crud-k8s-lab:latest localhost:5000/crud-k8s-lab:latest
-docker push localhost:5000/crud-k8s-lab:latest
+docker tag crud-k8s-lab:latest localhost:5001/crud-k8s-lab:latest
+docker push localhost:5001/crud-k8s-lab:latest
 ```
 
 ### Registry local no Kubernetes do Docker Desktop
 
-O Docker Desktop K8s já consegue acessar `localhost:5000` sem configuração extra.
-A imagem `localhost:5000/crud-k8s-lab:latest` nos YAMLs funciona diretamente.
+O Docker Desktop K8s já consegue acessar `localhost:5001` sem configuração extra.
+A imagem `localhost:5001/crud-k8s-lab:latest` nos YAMLs funciona diretamente.
 
 ### Ingress no Docker Desktop
 

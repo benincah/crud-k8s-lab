@@ -15,6 +15,7 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-app
 spec:
+  ingressClassName: nginx
   rules:
     - host: {{ .Values.ingress.host }}
       http:

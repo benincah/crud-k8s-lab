@@ -4,3 +4,4 @@ Para restaurar as extensões futuramente, basta rodar:
 
 O settings.json, copiar para
     Para ~/Library/Application Support/Code/User/settings.json
+        cp /Users/benincapple/dev/crud-k8s-lab/bkpvscode/settings.json "/Users/benincapple/Library/Application Support/Code/User/settings.json"

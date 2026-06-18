@@ -29,8 +29,8 @@ brew install openjdk@17 maven
 echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 
-# 5. Registry local (reinicia com Docker, mas não força Docker a iniciar no boot)
-docker run -d -p 5000:5000 --restart=unless-stopped --name registry registry:2
+# 5. Registry local (porta 5001 no host, pois 5000 é usada pelo AirPlay no macOS)
+docker run -d -p 5001:5000 --restart=unless-stopped --name registry registry:2
 
 # 6. Ingress Controller (Docker Desktop não inclui por padrão)
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
@@ -78,6 +78,8 @@ curl http://localhost:8080/api/produtos
 
 ### Acessar serviços (browser)
 
+> ⚠️ Esses serviços só ficam acessíveis enquanto o `docker compose up` estiver rodando. Após `docker compose down`, tudo é removido.
+
 | Serviço | URL | Credenciais |
 |---------|-----|-------------|
 | App (API) | http://localhost:8080/api/produtos | - |
@@ -103,9 +105,9 @@ docker compose down
 
 ```bash
 docker build -t crud-k8s-lab:latest .
-docker tag crud-k8s-lab:latest localhost:5000/crud-k8s-lab:latest
-docker push localhost:5000/crud-k8s-lab:latest
-curl http://localhost:5000/v2/_catalog
+docker tag crud-k8s-lab:latest localhost:5001/crud-k8s-lab:latest
+docker push localhost:5001/crud-k8s-lab:latest
+curl http://localhost:5001/v2/_catalog
 ```
 
 ---
@@ -120,20 +122,38 @@ helm repo update
 
 helm install monitoring prometheus-community/kube-prometheus-stack \
   -n monitoring --create-namespace \
-  --set grafana.adminPassword=admin \
-  --set grafana.service.type=NodePort \
-  --set grafana.service.nodePort=30300
+  --set grafana.adminPassword=admin
 
 kubectl get pods -n monitoring
-
-# Acessar Grafana: http://localhost:30300 (admin/admin)
 ```
+
+### Acessar serviços do Kubernetes (port-forward)
+
+No Docker Desktop, `NodePort` não é acessível diretamente. Use `port-forward`:
+
+```bash
+# Grafana (admin/admin)
+kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
+# → http://localhost:3000
+
+# Prometheus
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
+# → http://localhost:9090
+```
+
+> 💡 Cada `port-forward` ocupa o terminal. Use `&` no final para rodar em background, ou abra abas separadas.
 
 ---
 
 ## Etapa 5: Deploy com YAMLs puros
 
 > 📖 **Leia:** [`docs/roteiro-kubernetes.md`](docs/roteiro-kubernetes.md)
+
+> ⚠️ **Ingress Controller:** Se você ainda não instalou na etapa de pré-requisitos (item 6), faça agora — sem ele o Ingress não funciona:
+> ```bash
+> kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
+> kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
+> ```
 
 ```bash
 kubectl apply -f k8s/01-postgres.yaml
@@ -169,19 +189,91 @@ kubectl delete -f k8s/01-postgres.yaml
 ## Etapa 7: Deploy com Helm
 
 > 📖 **Leia:** [`docs/roteiro-helm.md`](docs/roteiro-helm.md)
+> 📖 **Para entender como acessar os serviços:** [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md)
+
+O chart Helm inclui **toda a infraestrutura** da aplicação:
+- App Java (Spring Boot)
+- PostgreSQL (banco de dados)
+- MinIO (object storage)
+- pgAdmin (cliente visual para o banco)
+
+Cada componente tem um template próprio em `helm/crud-app/templates/` e pode ser habilitado/desabilitado via `values.yaml`.
 
 ```bash
+# Instalar
 helm install crud-lab ./helm/crud-app -n crud-lab --create-namespace
 helm list -n crud-lab
 kubectl get all -n crud-lab
+```
 
-# Atualizar
+### Configurar hostnames (apenas uma vez)
+
+Para acessar os serviços via Ingress (sem port-forward), adicione ao `/etc/hosts`:
+
+```bash
+sudo sh -c 'cat >> /etc/hosts << EOF
+127.0.0.1 crud-app.local
+127.0.0.1 pgadmin.local
+127.0.0.1 minio.local
+EOF'
+```
+
+### Acessar serviços via Ingress (recomendado)
+
+Acesso permanente — funciona enquanto os pods estiverem rodando, sem precisar de comandos extras.
+
+| Serviço | URL | Credenciais |
+|---------|-----|-------------|
+| App (API) | http://crud-app.local/api/produtos | - |
+| pgAdmin | http://pgadmin.local | admin@admin.com / admin |
+| MinIO Console | http://minio.local | minioadmin / minioadmin |
+
+### Acessar serviços via port-forward (alternativa)
+
+Se o Ingress não estiver configurado, use port-forward (túnel temporário):
+
+```bash
+# pgAdmin → http://localhost:5050
+kubectl port-forward -n crud-lab svc/pgadmin 5050:5050 &
+
+# MinIO Console → http://localhost:9001
+kubectl port-forward -n crud-lab svc/minio 9001:9001 &
+
+# Grafana (namespace monitoring) → http://localhost:3000
+kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80 &
+
+# Prometheus (namespace monitoring) → http://localhost:9090
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
+```
+
+> 💡 Port-forward morre ao fechar o terminal. Ingress é permanente. Veja [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md) para entender a diferença.
+
+### Configurar pgAdmin para acessar o banco
+
+1. Acesse http://pgadmin.local (ou http://localhost:5050)
+2. **Add New Server** → Name: `crud-lab`
+3. Aba **Connection**:
+   - Host: `postgres`
+   - Port: `5432`
+   - Username: `postgres`
+   - Password: `postgres`
+4. Navegue em Databases > crudlab > Schemas > Tables
+
+### Comandos úteis (referência para o dia a dia)
+
+> ⚠️ Não execute tudo de uma vez — são comandos para usar conforme necessidade.
+
+```bash
+# Atualizar após mudar values.yaml ou templates
 helm upgrade crud-lab ./helm/crud-app -n crud-lab
 
-# Rollback
+# Ver histórico de releases
+helm history crud-lab -n crud-lab
+
+# Rollback para versão anterior (se algo der errado após upgrade)
 helm rollback crud-lab 1 -n crud-lab
 
-# Remover
+# Remover tudo (só quando quiser destruir o ambiente)
 helm uninstall crud-lab -n crud-lab
 ```
 
@@ -202,14 +294,47 @@ O kubeconfig já está em `~/.kube/config` (Docker Desktop configura automaticam
 
 > 📖 **Leia:** [`docs/roteiro-minio.md`](docs/roteiro-minio.md)
 
+### Criar o bucket (necessário apenas na primeira vez)
+
+O MinIO começa vazio — o bucket `produtos` precisa ser criado antes do primeiro upload:
+
 ```bash
+kubectl run minio-mc -n crud-lab --image=minio/mc --restart=Never --command -- \
+  sh -c "mc alias set myminio http://minio:9000 minioadmin minioadmin && mc mb myminio/produtos"
+
+# Aguardar e verificar
+sleep 10
+kubectl logs -n crud-lab minio-mc
+
+# Limpar o pod temporário
+kubectl delete pod minio-mc -n crud-lab
+```
+
+### Testar upload
+
+```bash
+# Criar um produto
 curl -X POST http://crud-app.local/api/produtos \
   -H "Content-Type: application/json" \
   -d '{"nome":"Manual","descricao":"PDF do produto","preco":0}'
 
+# Criar um arquivo de teste
+echo "conteudo de teste" > meu-arquivo.pdf
+
+# Upload do arquivo para o produto (id=1)
 curl -X POST http://crud-app.local/api/produtos/1/upload \
   -F "file=@meu-arquivo.pdf"
+# Resposta esperada: {"id":1,...,"arquivoUrl":"produtos/1/meu-arquivo.pdf"}
 ```
+
+### Verificar no MinIO Console
+
+1. Acesse http://minio.local (minioadmin / minioadmin)
+2. No menu lateral, clique em **Object Browser**
+3. Clique no bucket **produtos**
+4. Navegue em `1/` → verá o `meu-arquivo.pdf`
+
+> 💡 O arquivo é armazenado no caminho `produtos/<id-do-produto>/<nome-arquivo>`. Cada produto tem sua "pasta" dentro do bucket.
 
 ---
 
@@ -217,6 +342,6 @@ curl -X POST http://crud-app.local/api/produtos/1/upload \
 
 - Todas as imagens Docker rodam **nativamente ARM64** (sem emulação)
 - Performance excelente — M4 tem I/O rápido para containers
-- Se precisar buildar imagem multi-arch (para deploy em cluster x86): `docker buildx build --platform linux/amd64,linux/arm64 -t localhost:5000/crud-k8s-lab:latest --push .`
+- Se precisar buildar imagem multi-arch (para deploy em cluster x86): `docker buildx build --platform linux/amd64,linux/arm64 -t localhost:5001/crud-k8s-lab:latest --push .`
 - O shell padrão é **zsh** (configs vão em `~/.zshrc` ao invés de `~/.bashrc`)
 - **Nada inicia no boot** — quando quiser trabalhar: `open -a Docker` — quando terminar: `osascript -e 'quit app "Docker"'`

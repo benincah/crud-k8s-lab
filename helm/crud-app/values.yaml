@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: localhost:5000/crud-k8s-lab
+  repository: localhost:5001/crud-k8s-lab
   tag: latest
   pullPolicy: Always
 
@@ -31,3 +31,14 @@ postgres:
 
 minio:
   enabled: true
+  ingress:
+    enabled: true
+    host: minio.local
+
+pgadmin:
+  enabled: true
+  email: admin@admin.com
+  password: admin
+  ingress:
+    enabled: true
+    host: pgadmin.local
