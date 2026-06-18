@@ -130,9 +130,16 @@ Pod app → svc/minio:9000 → Pod minio
 ### 4. Prometheus coletando métricas da app
 
 ```
-Pod prometheus → svc/crud-lab-app:8080/actuator/prometheus → Pod app
-                (scrape via annotations no Deployment)
+ServiceMonitor (crud-lab ns, label: release=monitoring)
+    │ selector: app=crud-lab-app
+    ▼
+Service crud-lab-app (crud-lab ns, porta "http")
+    │
+    ▼
+Pod prometheus (monitoring ns) → GET :8080/actuator/prometheus → Pod app (crud-lab ns)
 ```
+
+> O Prometheus não usa annotations. Usa ServiceMonitor com label `release: monitoring`.
 
 ### 5. Grafana consultando Prometheus
 

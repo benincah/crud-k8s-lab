@@ -133,15 +133,123 @@ No Docker Desktop, `NodePort` não é acessível diretamente. Use `port-forward`
 
 ```bash
 # Grafana (admin/admin)
-kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
+kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80 &
 # → http://localhost:3000
 
 # Prometheus
-kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
 # → http://localhost:9090
 ```
 
 > 💡 Cada `port-forward` ocupa o terminal. Use `&` no final para rodar em background, ou abra abas separadas.
+
+### Configurar Grafana com Prometheus
+
+O `kube-prometheus-stack` já instala o Grafana **com o Prometheus pré-configurado como datasource** e vários dashboards prontos de K8s. Não precisa adicionar datasource manualmente.
+
+Para ver métricas da **sua aplicação Java (JVM/Micrometer)**:
+
+1. Acesse http://localhost:3000 (admin / admin)
+2. Vá em **Dashboards > Browse**
+3. Você verá dezenas de dashboards prontos (Kubernetes, Node, etc.)
+4. Para importar dashboard de JVM:
+   - Clique em **New > Import**
+   - No campo "Import via grafana.com", digite: `4701`
+   - Clique **Load**
+   - Em "Prometheus", selecione: `Prometheus`
+   - Clique **Import**
+5. **Corrigir datasource via API** (os dropdowns "Application" e "Instance" ficam vazios sem isso):
+   ```bash
+   # Com port-forward do Grafana já ativo (porta 3000)
+   DASH_UID=$(curl -s -u admin:admin http://localhost:3000/api/search | \
+     python3 -c "import json,sys;[print(d['uid']) for d in json.load(sys.stdin) if 'JVM' in d.get('title','')]" | head -1)
+
+   curl -s -u admin:admin http://localhost:3000/api/dashboards/uid/$DASH_UID | \
+     python3 -c "
+   import json,sys
+   data=json.load(sys.stdin)
+   dash=data['dashboard']
+   s=json.dumps(dash).replace('\${DS_PROMETHEUS}','prometheus')
+   dash=json.loads(s); dash['id']=None
+   print(json.dumps({'dashboard':dash,'overwrite':True}))" | \
+     curl -s -u admin:admin -X POST -H 'Content-Type: application/json' \
+       -d @- http://localhost:3000/api/dashboards/db
+   ```
+6. Acesse o dashboard: **Dashboards > Browse > JVM (Micrometer)**
+7. Selecione nos dropdowns: **Application** = `crud-k8s-lab`, **Instance** = qualquer IP
+8. O dashboard mostra: memória, threads, GC, HTTP requests da app
+
+> 💡 **Por que isso é necessário?** O dashboard 4701 usa `${DS_PROMETHEUS}` como referência ao datasource. No kube-prometheus-stack essa variável não é resolvida, deixando os dropdowns vazios. O script troca pela referência correta (`prometheus`).
+>
+> ⚠️ Se aparecer "JVM (Micrometer) 2" ou duplicata, delete a versão quebrada via **Dashboards > Browse** e mantenha apenas a corrigida.
+
+> ⚠️ O dashboard JVM só mostra dados se a app estiver expondo métricas. Verifique:
+> ```bash
+> curl http://crud-app.local/actuator/prometheus | head -20
+> ```
+> Se retornar métricas (linhas com `jvm_`, `http_server_`, etc.), está funcionando.
+
+### Verificar que Prometheus está coletando métricas da app
+
+1. Acesse http://localhost:9090 (Prometheus UI)
+2. No campo de query, digite: `up{namespace="crud-lab"}`
+3. Clique **Execute** → deve mostrar 2 targets com valor `1`
+4. Teste outra query: `jvm_memory_used_bytes{namespace="crud-lab"}`
+
+> ⚠️ Após o deploy, o Prometheus pode levar **1-2 minutos** para descobrir os novos targets.
+
+### Troubleshooting: Prometheus não coleta métricas da app
+
+O `kube-prometheus-stack` **não usa annotations** (`prometheus.io/scrape`) por padrão. Ele usa **ServiceMonitor** — um recurso customizado que diz ao Prometheus o que scrape.
+
+O chart Helm já inclui um ServiceMonitor (`helm/crud-app/templates/servicemonitor.yaml`). Para verificar se está funcionando:
+
+```bash
+# 1. Verificar que o ServiceMonitor existe
+kubectl get servicemonitor -n crud-lab
+# Deve mostrar: crud-lab-app
+
+# 2. Verificar que tem a label correta (release: monitoring)
+kubectl get servicemonitor crud-lab-app -n crud-lab -o jsonpath='{.metadata.labels}'
+# Deve conter: "release":"monitoring"
+
+# 3. Verificar que a app expõe métricas
+curl http://crud-app.local/actuator/prometheus | head -10
+# Deve retornar linhas com jvm_, http_server_, etc.
+
+# 4. Verificar targets no Prometheus (via API)
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
+curl -s http://localhost:9090/api/v1/targets | python3 -c "
+import json,sys
+data=json.load(sys.stdin)
+targets=[t for t in data['data']['activeTargets'] if 'crud-lab' in str(t.get('labels',{}))]
+print(f'Targets: {len(targets)}')
+for t in targets: print(f'  {t[\"health\"]} → {t.get(\"scrapeUrl\",\"?\")}')" 
+```
+
+**Se o ServiceMonitor não existir** (ex: você está usando YAMLs puros da etapa 5), crie manualmente:
+
+```bash
+kubectl apply -f - <<EOF
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: crud-app
+  namespace: crud-lab
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: crud-app
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
+EOF
+```
+
+> 💡 A label `release: monitoring` é **obrigatória** — é assim que o Prometheus filtra quais ServiceMonitors ele deve processar.
 
 ---
 
@@ -279,18 +387,7 @@ helm uninstall crud-lab -n crud-lab
 
 ---
 
-## Etapa 8: GUI para Kubernetes
-
-No Mac, além do LENS você pode usar:
-
-- **LENS** → `brew install --cask lens`
-- **k9s** (terminal) → `brew install k9s` (leve e rápido)
-
-O kubeconfig já está em `~/.kube/config` (Docker Desktop configura automaticamente).
-
----
-
-## Etapa 9: MinIO - Upload de arquivos
+## Etapa 8: MinIO - Upload de arquivos
 
 > 📖 **Leia:** [`docs/roteiro-minio.md`](docs/roteiro-minio.md)
 
@@ -335,6 +432,83 @@ curl -X POST http://crud-app.local/api/produtos/1/upload \
 4. Navegue em `1/` → verá o `meu-arquivo.pdf`
 
 > 💡 O arquivo é armazenado no caminho `produtos/<id-do-produto>/<nome-arquivo>`. Cada produto tem sua "pasta" dentro do bucket.
+
+---
+
+## Etapa 9: GUI para Kubernetes (LENS)
+
+> 📖 **Leia:** [`docs/roteiro-lens.md`](docs/roteiro-lens.md)
+
+### Por que usar uma GUI?
+
+Até agora você usou `kubectl` para tudo — funciona, mas exige memorizar comandos e não dá visão geral rápida. Uma GUI para K8s permite:
+- Ver todos os pods, services e deployments de uma vez
+- Acompanhar logs em tempo real sem terminal
+- Escalar replicas com um clique
+- Identificar problemas visualmente (pods em vermelho = erro)
+- Navegar entre namespaces rapidamente
+
+### Instalar LENS
+
+```bash
+brew install --cask lens
+```
+
+### Configurar
+
+1. Abra o **LENS** (Launchpad ou Spotlight)
+2. Crie uma conta (ou faça login se já tiver)
+3. O LENS detecta automaticamente o kubeconfig em `~/.kube/config`
+4. Clique no cluster **docker-desktop** na lista
+5. Aguarde conectar — deve mostrar o status "Connected"
+
+> 💡 No Mac com Docker Desktop, o kubeconfig já está configurado. Não precisa importar nada manualmente.
+
+### Navegar pelo cluster
+
+| Seção no LENS | O que mostra | Equivalente kubectl |
+|---------------|-------------|--------------------|
+| **Workloads > Pods** | Todos os pods, status, restarts | `kubectl get pods -A` |
+| **Workloads > Deployments** | Deployments, réplicas desejadas vs atuais | `kubectl get deployments -A` |
+| **Network > Services** | Services, portas, IPs internos | `kubectl get svc -A` |
+| **Network > Ingresses** | Rotas de entrada, hostnames | `kubectl get ingress -A` |
+| **Config > Secrets** | Secrets (dados sensíveis, base64) | `kubectl get secrets -A` |
+| **Storage > PVCs** | Volumes persistentes | `kubectl get pvc -A` |
+
+### Tarefas comuns no LENS
+
+**Ver logs de um pod:**
+1. Workloads > Pods > selecione o namespace `crud-lab`
+2. Clique no pod (ex: `crud-lab-app-xxx`)
+3. Clique no ícone de **logs** (canto superior direito do painel)
+
+**Escalar um deployment:**
+1. Workloads > Deployments > `crud-lab-app`
+2. Clique no deployment
+3. No painel, altere o número de réplicas
+
+**Entrar no terminal de um pod:**
+1. Workloads > Pods > selecione o pod
+2. Clique no ícone de **terminal** (Shell)
+3. Equivale a `kubectl exec -it <pod> -- /bin/sh`
+
+**Ver eventos (troubleshooting):**
+1. Selecione o namespace `crud-lab`
+2. Vá em **Events** — mostra erros recentes, restarts, falhas de pull de imagem
+
+### Alternativa terminal: k9s
+
+Se preferir ficar no terminal com visual interativo:
+
+```bash
+brew install k9s
+k9s
+```
+
+- Navegação por teclado (estilo vim)
+- Leve e rápido
+- `:pods`, `:svc`, `:deploy` para navegar
+- `l` para logs, `s` para shell, `d` para describe
 
 ---
 

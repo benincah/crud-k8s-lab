@@ -42,3 +42,6 @@ pgadmin:
   ingress:
     enabled: true
     host: pgadmin.local
+
+serviceMonitor:
+  enabled: true
