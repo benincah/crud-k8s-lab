@@ -2,6 +2,26 @@
 
 Projeto de aprendizado: App Java (Spring Boot) + PostgreSQL + MinIO + Grafana + Kubernetes + Helm + EFK + Rancher.
 
+---
+
+## O que cada etapa ensina
+
+| Etapa | Conceitos |
+|-------|-----------|
+| 1 | Maven, build Java, estrutura Spring Boot |
+| 2 | Docker Compose, multi-container, variáveis de ambiente |
+| 3 | Dockerfile multi-stage, registry de imagens |
+| 4 | Helm repos, charts de terceiros, Prometheus, Grafana, ServiceMonitor |
+| 5 | Deployment, Service, Ingress, Secret, Namespace (YAMLs) |
+| 6 | Limpeza de recursos K8s |
+| 7 | Helm charts próprios, templates, values, upgrade, rollback |
+| 8 | Object storage (MinIO), bucket, upload via API |
+| 9 | LENS como ferramenta visual para K8s |
+| 10 | EFK, logs centralizados, DaemonSet, Elasticsearch, Kibana |
+| 11 | Rancher, RBAC, TLS, cert-manager, catálogo de apps |
+
+---
+
 ## Estrutura
 
 ```
@@ -9,10 +29,14 @@ crud-k8s-lab/
 ├── src/                    # Código Java (Spring Boot)
 ├── Dockerfile              # Build multi-stage da imagem
 ├── docker-compose.yml      # Ambiente local completo
-├── prometheus.yml          # Config do Prometheus
-├── helm/crud-app/          # Helm chart
+├── pom.xml                 # Dependências Maven
+├── prometheus.yml          # Config do Prometheus (Docker Compose)
+├── helm/crud-app/          # Helm chart (deploy K8s)
 ├── k8s/                    # YAMLs puros (para aprender)
-└── docs/                   # Guias de estudo
+├── docs/                   # Guias de estudo
+├── README.md               # Este arquivo (Windows 11 + WSL)
+├── README_mac.md           # Guia para macOS (Apple Silicon)
+└── README_rancher_elastic.md # Stack avançada (Rancher + EFK) para Mac
 ```
 
 ---
@@ -528,24 +552,6 @@ sudo sh -c 'echo "<IP-DO-WSL> rancher.local" >> /etc/hosts'
 | Kibana (logs) | http://kibana.local | - | HTTP |
 | Grafana (métricas) | http://<IP-DO-WSL>:30300 | admin / admin | HTTP |
 | **Rancher** | https://rancher.local | admin / (sua senha) | **HTTPS** |
-
----
-
-## Resumo: O que cada etapa ensina
-
-| Etapa | Conceitos |
-|-------|-----------|
-| 1 | Maven, build Java, estrutura Spring Boot |
-| 2 | Docker Compose, multi-container, variáveis de ambiente |
-| 3 | Dockerfile multi-stage, registry de imagens |
-| 4 | Helm repos, charts de terceiros, Prometheus, Grafana, ServiceMonitor |
-| 5 | Deployment, Service, Ingress, Secret, Namespace (YAMLs) |
-| 6 | Limpeza de recursos K8s |
-| 7 | Helm charts próprios, templates, values, upgrade, rollback |
-| 8 | Object storage (MinIO), bucket, upload via API |
-| 9 | LENS como ferramenta visual para K8s |
-| 10 | EFK, logs centralizados, DaemonSet, Elasticsearch, Kibana |
-| 11 | Rancher, RBAC, TLS, cert-manager, catálogo de apps |
 
 ---
 
