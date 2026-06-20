@@ -262,7 +262,102 @@ kubectl get clusterrolebindings | grep rancher | head -10
 
 ---
 
-## 8. Troubleshooting
+## 8. Instalar Helm Chart via Rancher (Apps & Marketplace)
+
+Um dos grandes benefícios do Rancher é instalar charts pelo browser sem precisar de `helm install` no terminal. Vamos instalar o **Redis** como exemplo prático.
+
+### Passo a passo
+
+1. Acesse https://rancher.local
+2. No menu lateral, clique no cluster **local**
+3. Vá em **Apps > Charts** (ou **Apps & Marketplace > Charts**)
+4. Na barra de busca, digite: `redis`
+5. Clique no chart **Redis** (do repositório Bitnami)
+6. Clique **Install**
+
+### Configuração
+
+| Campo | Valor |
+|-------|-------|
+| Namespace | `crud-lab` (selecione ou crie) |
+| Name | `redis-lab` |
+| Chart Version | (manter a padrão) |
+
+7. Na aba **Values YAML** (ou **Edit YAML**), ajuste para um lab leve:
+
+```yaml
+architecture: standalone          # Sem réplica (lab)
+auth:
+  enabled: false                  # Sem senha (só lab!)
+master:
+  resources:
+    requests:
+      memory: "128Mi"
+    limits:
+      memory: "256Mi"
+```
+
+8. Clique **Install** (ou **Next > Install**)
+9. Aguarde o status mudar para **Deployed**
+
+### Verificar
+
+No terminal ou pelo próprio Rancher (Workloads > Pods):
+
+```bash
+# Ver pod do Redis
+kubectl get pods -n crud-lab | grep redis
+
+# Testar conexão
+kubectl exec -n crud-lab deploy/redis-lab-master -- redis-cli ping
+# Esperado: PONG
+```
+
+### O que aconteceu por trás
+
+O Rancher executou o equivalente a:
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install redis-lab bitnami/redis -n crud-lab \
+  --set architecture=standalone \
+  --set auth.enabled=false \
+  --set master.resources.requests.memory=128Mi \
+  --set master.resources.limits.memory=256Mi
+```
+
+Você fez tudo pelo browser — sem digitar um comando.
+
+### Gerenciar o chart instalado
+
+1. Vá em **Apps > Installed Apps**
+2. Clique em `redis-lab`
+3. Opções disponíveis:
+   - **Upgrade** — alterar values (ex: habilitar auth)
+   - **Rollback** — voltar para versão anterior
+   - **Delete** — remover completamente
+
+### Remover (após testar)
+
+Pelo Rancher: **Apps > Installed Apps > redis-lab > Delete**
+
+Ou pelo terminal:
+```bash
+helm uninstall redis-lab -n crud-lab
+```
+
+### Analogia Rancher vs Terminal
+
+| Ação | Terminal | Rancher GUI |
+|------|---------|-------------|
+| Buscar chart | `helm search repo redis` | Apps > Charts > buscar |
+| Instalar | `helm install ...` | Install > preencher campos |
+| Alterar config | `helm upgrade --set ...` | Installed Apps > Upgrade |
+| Rollback | `helm rollback redis-lab 1` | Installed Apps > Rollback |
+| Remover | `helm uninstall redis-lab` | Installed Apps > Delete |
+
+---
+
+## 9. Troubleshooting
 
 ### Rancher não abre (connection refused)
 → Pods ainda subindo: `kubectl get pods -n cattle-system -w`
@@ -290,4 +385,5 @@ kubectl get clusterrolebindings | grep rancher | head -10
 5. **Primeiro acesso** → login, explorar o painel
 6. **RBAC conceitual** → Role, ClusterRole, Binding
 7. **Criar usuário** → RBAC na prática via GUI do Rancher
-8. **Comparar** → Rancher GUI vs kubectl para as mesmas tarefas
+8. **Instalar chart via GUI** → Apps & Marketplace (Redis como exemplo)
+9. **Comparar** → Rancher GUI vs kubectl para as mesmas tarefas
