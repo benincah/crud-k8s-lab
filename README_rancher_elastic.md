@@ -1,4 +1,4 @@
-# CRUD K8s Lab — Dataprev Stack (Rancher + EFK)
+# CRUD K8s Lab — Rancher + EFK (Stack Avançada)
 
 > **Pré-requisito:** Conclua todas as etapas do [`README_mac.md`](README_mac.md) (etapas 1-9) antes de prosseguir.
 > Certifique-se de que a stack base está rodando (`kubectl get pods -n crud-lab` todos Running).
@@ -11,7 +11,7 @@ Este guia adiciona à stack existente:
 
 ## O que muda em relação à stack base?
 
-| Componente | Stack Base | Dataprev Stack |
+| Componente | Stack Base | Stack Avançada |
 |-----------|-----------|---------------|
 | GUI K8s | LENS (desktop app) | **Rancher** (web, com RBAC) |
 | Logs | `kubectl logs` (manual) | **EFK** (centralizado, pesquisável) |
@@ -38,7 +38,7 @@ kubectl get pods -n monitoring
 
 ## Etapa A: EFK — Centralização de Logs
 
-> 📖 **Leia:** [`docs/roteiro-elk_dataprev_stack.md`](docs/roteiro-elk_dataprev_stack.md)
+> 📖 **Leia:** [`docs/roteiro-efk.md`](docs/roteiro-efk.md)
 
 ### O que é EFK?
 
@@ -230,7 +230,7 @@ Significa que o Elasticsearch não recebeu dados. Verifique:
 
 ## Etapa B: Rancher — Gerenciamento Kubernetes
 
-> 📖 **Leia:** [`docs/roteiro-rancher_dataprev_stack.md`](docs/roteiro-rancher_dataprev_stack.md)
+> 📖 **Leia:** [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md)
 
 ### O que é Rancher?
 
@@ -361,12 +361,12 @@ kubectl port-forward -n crud-lab svc/elasticsearch 9200:9200 &
 
 | Conceito | Onde aparece | Doc detalhado |
 |----------|-------------|--------------|
-| TLS / HTTPS | Rancher (cert-manager gera certificado) | [`docs/roteiro-rancher_dataprev_stack.md`](docs/roteiro-rancher_dataprev_stack.md) |
+| TLS / HTTPS | Rancher (cert-manager gera certificado) | [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md) |
 | cert-manager | Namespace `cert-manager` | Idem |
 | RBAC (Roles, Bindings) | Rancher cria automaticamente | Idem |
 | cattle-system | Namespace do Rancher | Idem |
 | Secrets TLS | Certificados armazenados como Secrets | Idem |
-| DaemonSet | Fluentd roda em cada node | [`docs/roteiro-elk_dataprev_stack.md`](docs/roteiro-elk_dataprev_stack.md) |
+| DaemonSet | Fluentd roda em cada node | [`docs/roteiro-efk.md`](docs/roteiro-efk.md) |
 | ServiceAccount + RBAC | Fluentd precisa permissão para ler logs | Idem |
 | Logs estruturados (JSON) | App emite JSON → Fluentd parseia | Idem |
 | Index Patterns | Kibana organiza logs por pattern | Idem |

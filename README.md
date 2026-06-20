@@ -368,7 +368,7 @@ curl -X POST http://crud-app.local/api/produtos/1/upload \
 
 ## Etapa 10: EFK — Centralização de Logs
 
-> 📖 **Leia:** [`docs/roteiro-elk_dataprev_stack.md`](docs/roteiro-elk_dataprev_stack.md)
+> 📖 **Leia:** [`docs/roteiro-efk.md`](docs/roteiro-efk.md)
 
 ### O que é EFK?
 
@@ -459,7 +459,7 @@ level: "ERROR" AND message: "produto"
 
 ## Etapa 11: Rancher — Gerenciamento Kubernetes
 
-> 📖 **Leia:** [`docs/roteiro-rancher_dataprev_stack.md`](docs/roteiro-rancher_dataprev_stack.md)
+> 📖 **Leia:** [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md)
 
 ### O que é Rancher?
 
@@ -630,8 +630,8 @@ helm upgrade crud-lab ./helm/crud-app -n crud-lab
 | [`docs/roteiro-kubernetes.md`](docs/roteiro-kubernetes.md) | Conceitos K8s (Pod, Deployment, Service, Ingress) |
 | [`docs/roteiro-minio.md`](docs/roteiro-minio.md) | Object storage, buckets, upload |
 | [`docs/roteiro-lens.md`](docs/roteiro-lens.md) | LENS, k9s, GUI para Kubernetes |
-| [`docs/roteiro-rancher_dataprev_stack.md`](docs/roteiro-rancher_dataprev_stack.md) | Rancher, RBAC, TLS, cert-manager |
-| [`docs/roteiro-elk_dataprev_stack.md`](docs/roteiro-elk_dataprev_stack.md) | EFK, logs centralizados, Kibana |
+| [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md) | Rancher, RBAC, TLS, cert-manager |
+| [`docs/roteiro-efk.md`](docs/roteiro-efk.md) | EFK, logs centralizados, Kibana |
 | [`docs/roteiro-springboot.md`](docs/roteiro-springboot.md) | Código Java, Spring Boot, anotações |
 | [`docs/roteiro-maven.md`](docs/roteiro-maven.md) | Maven, pom.xml, dependências, lifecycle, build |
 | [`docs/roteiro-docker.md`](docs/roteiro-docker.md) | Dockerfile, Docker Compose |
