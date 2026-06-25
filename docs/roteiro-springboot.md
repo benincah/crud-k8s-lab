@@ -12,17 +12,17 @@ Request HTTP
      │
      ▼
 ┌─────────────────────┐
-│  ProdutoController   │  ← Recebe requisições REST
+│  ProdutoController  │  ← Recebe requisições REST
 └─────────┬───────────┘
           │
           ▼
 ┌─────────────────────┐
-│  ProdutoRepository   │  ← Acessa o banco (PostgreSQL)
+│  ProdutoRepository  │  ← Acessa o banco (PostgreSQL)
 └─────────┬───────────┘
           │
           ▼
 ┌─────────────────────┐
-│  Produto (Entity)    │  ← Representa a tabela no banco
+│  Produto (Entity)   │  ← Representa a tabela no banco
 └─────────────────────┘
 
 MinioClient (injetado no Controller) → Faz upload de arquivos para o MinIO

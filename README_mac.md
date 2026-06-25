@@ -1,47 +1,12 @@
 # CRUD K8s Lab — Mac Mini M4 (Apple Silicon)
 
-Projeto de aprendizado: App Java (Spring Boot) + PostgreSQL + MinIO + Grafana + Kubernetes + Helm.
+Guia de instalação e execução para **macOS ARM64 (Apple Silicon) + Docker Desktop**.
 
-> Este guia é a versão **macOS ARM64** do README principal. A estrutura do projeto e os arquivos são os mesmos — apenas os comandos de setup e ferramentas mudam.
-> 
+> 📖 Visão geral do projeto: [`README.md`](README.md)
+>
 > 📖 **Antes de tudo, leia:** [`docs/roteiro-setup_mac.md`](docs/roteiro-setup_mac.md) — explica cada ferramenta instalada e como controlar o que roda no seu Mac.
-
----
-
-## O que cada etapa ensina
-
-| Etapa | Conceitos |
-|-------|-----------|
-| 1 | Maven, build Java, estrutura Spring Boot |
-| 2 | Docker Compose, multi-container, variáveis de ambiente |
-| 3 | Dockerfile multi-stage, registry de imagens |
-| 4 | Helm repos, charts de terceiros, Prometheus, Grafana, ServiceMonitor |
-| 5 | Deployment, Service, Ingress, Secret, Namespace (YAMLs) |
-| 6 | Limpeza de recursos K8s |
-| 7 | Helm charts próprios, templates, values, upgrade, rollback |
-| 8 | Object storage (MinIO), bucket, upload via API |
-| 9 | LENS como ferramenta visual para K8s |
-
+>
 > 💡 Para etapas avançadas (EFK + Rancher), veja [`README_rancher_elastic.md`](README_rancher_elastic.md)
-
----
-
-## Estrutura
-
-```
-crud-k8s-lab/
-├── src/                    # Código Java (Spring Boot)
-├── Dockerfile              # Build multi-stage da imagem
-├── docker-compose.yml      # Ambiente local completo
-├── pom.xml                 # Dependências Maven
-├── prometheus.yml          # Config do Prometheus (Docker Compose)
-├── helm/crud-app/          # Helm chart (deploy K8s)
-├── k8s/                    # YAMLs puros (para aprender)
-├── docs/                   # Guias de estudo
-├── README.md               # Guia para Windows 11 + WSL
-├── README_mac.md           # Este arquivo (macOS)
-└── README_rancher_elastic.md # Stack avançada (Rancher + EFK)
-```
 
 ---
 

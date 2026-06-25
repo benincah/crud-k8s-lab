@@ -18,8 +18,8 @@ Neste projeto focamos em **métricas** (Prometheus + Grafana).
 ```
 ┌─────────────┐         ┌──────────────┐         ┌─────────────┐
 │  crud-app   │ ──────► │  Prometheus  │ ──────► │   Grafana   │
-│ (expõe      │  scrape  │ (coleta e    │  query   │ (visualiza  │
-│  métricas)  │  /15s    │  armazena)   │         │  dashboards)│
+│ (expõe      │  scrape │ (coleta e    │  query  │ (visualiza  │
+│  métricas)  │  /15s   │  armazena)   │         │  dashboards)│
 └─────────────┘         └──────────────┘         └─────────────┘
   :8080/actuator/          :9090                    :3000
   prometheus

@@ -428,7 +428,7 @@ mvn clean package
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         pom.xml                              │
+│                         pom.xml                             │
 ├─────────────────────────────────────────────────────────────┤
 │  <parent>         → Herda configs do Spring Boot            │
 │  <groupId>        → Quem é você (organização)               │

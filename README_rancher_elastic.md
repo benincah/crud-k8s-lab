@@ -299,6 +299,8 @@ sudo sh -c 'echo "127.0.0.1 rancher.local" >> /etc/hosts'
 | **Apps & Marketplace** | Instalar Helm charts pelo browser |
 | **Users & Authentication** | Criar usuários, definir permissões (RBAC) |
 
+> 📖 **Próximo passo:** Para fazer o deploy de toda a stack pela GUI do Rancher (sem terminal), veja [`docs/roteiro-deploy-via-rancher.md`](docs/roteiro-deploy-via-rancher.md)
+
 ### Verificar recursos criados pelo Rancher
 
 ```bash
