@@ -1,4 +1,4 @@
-# Roteiro de Estudo: MinIO (Object Storage)
+# 🪣 Roteiro de Estudo: MinIO (Object Storage)
 
 ## 1. O que é MinIO?
 

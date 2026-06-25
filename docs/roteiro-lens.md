@@ -1,4 +1,4 @@
-# Roteiro de Estudo: LENS — GUI para Kubernetes
+# 🔭 Roteiro de Estudo: LENS — GUI para ☸️ Kubernetes
 
 ## 1. Por que usar uma GUI para Kubernetes?
 

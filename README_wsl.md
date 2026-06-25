@@ -1,6 +1,6 @@
-# CRUD K8s Lab — Windows 11 + WSL
+# 🫟 CRUD K8s Lab — Windows 11 + WSL
 
-Guia de instalação e execução para **Windows 11 com WSL Ubuntu + K3s**.
+Guia de instalação e execução para **🫟 Windows 11 com WSL Ubuntu + ☸️ K3s**.
 
 > 📖 Visão geral do projeto: [`README.md`](README.md)
 
@@ -50,7 +50,8 @@ mvn -version
 
 ## Etapa 1: Entender e buildar a aplicação
 
-> 📖 **Leia:** [`docs/roteiro-springboot.md`](docs/roteiro-springboot.md) e [`docs/roteiro-maven.md`](docs/roteiro-maven.md)
+> 📖 **Leia:** [`docs/roteiro-springboot.md`](docs/roteiro-springboot.md) — 🍃 Spring Boot, ☕ Java
+> e [`docs/roteiro-maven.md`](docs/roteiro-maven.md) — 🏗️ Maven, pom.xml
 
 ```bash
 cd crud-k8s-lab
@@ -60,9 +61,9 @@ ls target/*.jar
 
 ---
 
-## Etapa 2: Rodar local com Docker Compose
+## Etapa 2: Rodar local com 🐳 Docker Compose
 
-> 📖 **Leia:** [`docs/roteiro-docker.md`](docs/roteiro-docker.md)
+> 📖 **Leia:** [`docs/roteiro-docker.md`](docs/roteiro-docker.md) — 🐳 Dockerfile, Docker Compose
 
 ```bash
 docker compose up --build -d
@@ -109,7 +110,7 @@ docker compose down
 
 ---
 
-## Etapa 3: Build da imagem Docker para Kubernetes
+## Etapa 3: Build da imagem 🐳 Docker para ☸️ Kubernetes
 
 ```bash
 docker build -t crud-k8s-lab:latest .
@@ -120,9 +121,9 @@ curl http://localhost:5000/v2/_catalog
 
 ---
 
-## Etapa 4: Prometheus + Grafana no Kubernetes
+## Etapa 4: 🔥 Prometheus + 📊 Grafana no ☸️ Kubernetes
 
-> 📖 **Leia:** [`docs/roteiro-observabilidade.md`](docs/roteiro-observabilidade.md)
+> 📖 **Leia:** [`docs/roteiro-observabilidade.md`](docs/roteiro-observabilidade.md) — 🔥 Prometheus, 📊 Grafana, 📡 ServiceMonitor
 
 **Isso precisa ser feito ANTES de deployar a app.**
 
@@ -176,9 +177,10 @@ kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 909
 
 ---
 
-## Etapa 5: Deploy com YAMLs puros (para aprender K8s)
+## Etapa 5: Deploy com 📄 YAMLs puros (para aprender ☸️ K8s)
 
-> 📖 **Leia:** [`docs/roteiro-kubernetes.md`](docs/roteiro-kubernetes.md) e [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md)
+> 📖 **Leia:** [`docs/roteiro-kubernetes.md`](docs/roteiro-kubernetes.md) — ☸️ Pod, Deployment, Service, Ingress
+> e [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md) — 🚦 Port-forward vs Ingress
 
 ```bash
 kubectl apply -f k8s/01-postgres.yaml
@@ -220,9 +222,10 @@ kubectl delete -f k8s/01-postgres.yaml
 
 ---
 
-## Etapa 7: Deploy com Helm (forma profissional)
+## Etapa 7: Deploy com ⎈ Helm (forma profissional)
 
-> 📖 **Leia:** [`docs/roteiro-helm.md`](docs/roteiro-helm.md) e [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md)
+> 📖 **Leia:** [`docs/roteiro-helm.md`](docs/roteiro-helm.md) — ⎈ Helm charts, templates
+> e [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md) — 🚦 Port-forward vs Ingress
 
 O chart Helm inclui **toda a infraestrutura**:
 - App Java (Spring Boot)
@@ -290,9 +293,9 @@ helm uninstall crud-lab -n crud-lab
 
 ---
 
-## Etapa 8: MinIO - Upload de arquivos
+## Etapa 8: 🪣 MinIO - Upload de arquivos
 
-> 📖 **Leia:** [`docs/roteiro-minio.md`](docs/roteiro-minio.md)
+> 📖 **Leia:** [`docs/roteiro-minio.md`](docs/roteiro-minio.md) — 🪣 Object storage, buckets, upload
 
 ### Criar o bucket
 
@@ -324,9 +327,9 @@ curl -X POST http://crud-app.local/api/produtos/1/upload \
 
 ---
 
-## Etapa 9: GUI para Kubernetes (LENS)
+## Etapa 9: GUI para ☸️ Kubernetes (🔭 LENS)
 
-> 📖 **Leia:** [`docs/roteiro-lens.md`](docs/roteiro-lens.md)
+> 📖 **Leia:** [`docs/roteiro-lens.md`](docs/roteiro-lens.md) — 🔭 LENS, 🖥️ k9s
 
 ### Instalar LENS no Windows
 
@@ -356,9 +359,9 @@ curl -X POST http://crud-app.local/api/produtos/1/upload \
 
 ---
 
-## Etapa 10: EFK — Centralização de Logs
+## Etapa 10: 🔍 EFK — Centralização de Logs
 
-> 📖 **Leia:** [`docs/roteiro-efk.md`](docs/roteiro-efk.md)
+> 📖 **Leia:** [`docs/roteiro-efk.md`](docs/roteiro-efk.md) — 🔍 Elasticsearch, 🌊 Fluentd, 📈 Kibana
 
 ### O que é EFK?
 
@@ -447,9 +450,9 @@ level: "ERROR" AND message: "produto"
 
 ---
 
-## Etapa 11: Rancher — Gerenciamento Kubernetes
+## Etapa 11: 🐄 Rancher — Gerenciamento ☸️ Kubernetes
 
-> 📖 **Leia:** [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md)
+> 📖 **Leia:** [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md) — 🐄 Rancher, 🔐 RBAC, 🔒 TLS
 
 ### Instalar cert-manager
 

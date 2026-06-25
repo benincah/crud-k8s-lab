@@ -1,4 +1,4 @@
-# Roteiro: Deploy Completo da Stack via Rancher (Sem Linha de Comando)
+# 🐄 Roteiro: Deploy Completo da Stack via Rancher (Sem Linha de Comando)
 
 > **Pré-requisito:** Rancher já instalado e acessível em https://rancher.local (veja [`README_rancher_elastic.md`](../README_rancher_elastic.md) Etapa B).
 

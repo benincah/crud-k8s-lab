@@ -1,4 +1,4 @@
-# Arquitetura da Infraestrutura — CRUD K8s Lab
+# 🏗️ Arquitetura da Infraestrutura — CRUD K8s Lab
 
 ## Visao geral
 

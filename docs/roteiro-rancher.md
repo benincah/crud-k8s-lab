@@ -1,4 +1,4 @@
-# Roteiro de Estudo: Rancher — Gerenciamento Kubernetes
+# 🐄 Roteiro de Estudo: Rancher — Gerenciamento ☸️ Kubernetes
 
 ## 1. O que é Rancher?
 

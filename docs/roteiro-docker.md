@@ -1,4 +1,4 @@
-# Roteiro de Estudo: Docker e Docker Compose
+# 🐳 Roteiro de Estudo: Docker e Docker Compose
 
 ## 1. O que é Docker?
 

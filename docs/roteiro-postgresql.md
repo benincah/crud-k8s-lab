@@ -1,4 +1,4 @@
-# Roteiro de Estudo: PostgreSQL em Container vs Instalado
+# 🐘 Roteiro de Estudo: PostgreSQL em Container vs Instalado
 
 ## 1. As duas formas de rodar PostgreSQL
 

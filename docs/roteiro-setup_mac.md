@@ -1,4 +1,4 @@
-# Setup no Mac Mini M4 (Apple Silicon / ARM64)
+# 🍎 Setup no Mac Mini M4 (Apple Silicon / ARM64)
 
 ## Diferenças em relação ao setup WSL
 

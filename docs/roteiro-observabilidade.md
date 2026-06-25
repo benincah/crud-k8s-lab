@@ -1,4 +1,4 @@
-# Roteiro de Estudo: Observabilidade (Prometheus + Grafana)
+# 🔥 Roteiro de Estudo: Observabilidade (🔥 Prometheus + 📊 Grafana)
 
 ## 1. O que é Observabilidade?
 

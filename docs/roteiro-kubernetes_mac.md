@@ -1,4 +1,4 @@
-# Roteiro de Estudo: Kubernetes Essencial (Mac)
+# ☸️ Roteiro de Estudo: Kubernetes Essencial (🍎 Mac)
 
 > Este roteiro é idêntico ao [`roteiro-kubernetes.md`](roteiro-kubernetes.md) exceto pelas seções que diferem no Mac.
 > **Leia o roteiro original primeiro** — aqui estão apenas os complementos e diferenças para Docker Desktop no macOS.

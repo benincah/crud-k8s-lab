@@ -1,4 +1,4 @@
-# Roteiro de Estudo: Maven
+# 🏗️ Roteiro de Estudo: Maven
 
 > 📖 Este documento complementa a **Etapa 1** do [README.md](../README.md) — onde você faz `mvn clean package` para gerar o `.jar`.
 > Aqui você vai entender **o que é o Maven**, como ele funciona e o que cada parte do `pom.xml` significa.

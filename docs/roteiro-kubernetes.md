@@ -1,4 +1,4 @@
-# Roteiro de Estudo: Kubernetes Essencial
+# ☸️ Roteiro de Estudo: Kubernetes Essencial
 
 ## 1. Namespace
 

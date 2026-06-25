@@ -1,4 +1,4 @@
-# Roteiro de Estudo: EFK (Elasticsearch + Fluentd + Kibana)
+# 🔍 Roteiro de Estudo: EFK (🔍 Elasticsearch + 🌊 Fluentd + 📈 Kibana)
 
 ## 1. O que é a stack EFK?
 

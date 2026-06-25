@@ -1,4 +1,4 @@
-# Roteiro: Entendendo o Código Java (Spring Boot)
+# 🍃 Roteiro: Entendendo o Código ☕ Java (🍃 Spring Boot)
 
 > 📖 Este documento complementa a **Etapa 1** do [README.md](../README.md) — onde você faz o build com Maven e gera o `.jar`.
 > Aqui você vai entender **o que cada arquivo faz**, como as anotações funcionam e como o Spring Boot orquestra tudo.

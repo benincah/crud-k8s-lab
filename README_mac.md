@@ -1,12 +1,12 @@
-# CRUD K8s Lab — Mac Mini M4 (Apple Silicon)
+# 🍎 CRUD K8s Lab — Mac Mini M4 (Apple Silicon)
 
-Guia de instalação e execução para **macOS ARM64 (Apple Silicon) + Docker Desktop**.
+Guia de instalação e execução para **🍎 macOS ARM64 (Apple Silicon) + 🐳 Docker Desktop**.
 
 > 📖 Visão geral do projeto: [`README.md`](README.md)
 >
 > 📖 **Antes de tudo, leia:** [`docs/roteiro-setup_mac.md`](docs/roteiro-setup_mac.md) — explica cada ferramenta instalada e como controlar o que roda no seu Mac.
 >
-> 💡 Para etapas avançadas (EFK + Rancher), veja [`README_rancher_elastic.md`](README_rancher_elastic.md)
+> 💡 Para etapas avançadas (🔍 EFK + 🐄 Rancher), veja [`README_rancher_elastic.md`](README_rancher_elastic.md)
 
 ---
 
@@ -52,7 +52,7 @@ mvn -version
 
 ## Etapa 1: Entender e buildar a aplicação
 
-> 📖 **Leia:** [`docs/roteiro-springboot.md`](docs/roteiro-springboot.md)
+> 📖 **Leia:** [`docs/roteiro-springboot.md`](docs/roteiro-springboot.md) — 🍃 Spring Boot, ☕ Java, anotações
 
 ```bash
 cd crud-k8s-lab
@@ -62,9 +62,9 @@ ls target/*.jar
 
 ---
 
-## Etapa 2: Rodar local com Docker Compose
+## Etapa 2: Rodar local com 🐳 Docker Compose
 
-> 📖 **Leia:** [`docs/roteiro-docker.md`](docs/roteiro-docker.md)
+> 📖 **Leia:** [`docs/roteiro-docker.md`](docs/roteiro-docker.md) — 🐳 Dockerfile, Docker Compose
 
 ```bash
 docker compose up --build -d
@@ -103,7 +103,7 @@ docker compose down
 
 ---
 
-## Etapa 3: Build da imagem Docker para Kubernetes
+## Etapa 3: Build da imagem 🐳 Docker para ☸️ Kubernetes
 
 ```bash
 docker build -t crud-k8s-lab:latest .
@@ -114,9 +114,9 @@ curl http://localhost:5001/v2/_catalog
 
 ---
 
-## Etapa 4: Prometheus + Grafana no Kubernetes
+## Etapa 4: 🔥 Prometheus + 📊 Grafana no ☸️ Kubernetes
 
-> 📖 **Leia:** [`docs/roteiro-observabilidade.md`](docs/roteiro-observabilidade.md)
+> 📖 **Leia:** [`docs/roteiro-observabilidade.md`](docs/roteiro-observabilidade.md) — 🔥 Prometheus, 📊 Grafana, 📡 ServiceMonitor
 
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -255,9 +255,9 @@ EOF
 
 ---
 
-## Etapa 5: Deploy com YAMLs puros
+## Etapa 5: Deploy com 📄 YAMLs puros
 
-> 📖 **Leia:** [`docs/roteiro-kubernetes.md`](docs/roteiro-kubernetes.md)
+> 📖 **Leia:** [`docs/roteiro-kubernetes.md`](docs/roteiro-kubernetes.md) — ☸️ Pod, Deployment, Service, Ingress
 
 > ⚠️ **Ingress Controller:** Se você ainda não instalou na etapa de pré-requisitos (item 6), faça agora — sem ele o Ingress não funciona:
 > ```bash
@@ -286,7 +286,7 @@ curl http://localhost:8080/api/produtos
 
 ---
 
-## Etapa 6: Remover deploy manual antes do Helm
+## Etapa 6: Remover deploy manual antes do ⎈ Helm
 
 ```bash
 kubectl delete -f k8s/02-app.yaml
@@ -296,10 +296,10 @@ kubectl delete -f k8s/01-postgres.yaml
 
 ---
 
-## Etapa 7: Deploy com Helm
+## Etapa 7: Deploy com ⎈ Helm
 
-> 📖 **Leia:** [`docs/roteiro-helm.md`](docs/roteiro-helm.md)
-> 📖 **Para entender como acessar os serviços:** [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md)
+> 📖 **Leia:** [`docs/roteiro-helm.md`](docs/roteiro-helm.md) — ⎈ Helm charts, templates, comandos
+> 📖 **Para entender como acessar os serviços:** [`docs/roteiro-acesso-servicos.md`](docs/roteiro-acesso-servicos.md) — 🚦 Port-forward vs Ingress
 
 O chart Helm inclui **toda a infraestrutura** da aplicação:
 - App Java (Spring Boot)
@@ -389,9 +389,9 @@ helm uninstall crud-lab -n crud-lab
 
 ---
 
-## Etapa 8: MinIO - Upload de arquivos
+## Etapa 8: 🪣 MinIO - Upload de arquivos
 
-> 📖 **Leia:** [`docs/roteiro-minio.md`](docs/roteiro-minio.md)
+> 📖 **Leia:** [`docs/roteiro-minio.md`](docs/roteiro-minio.md) — 🪣 Object storage, buckets, upload
 
 ### Criar o bucket (necessário apenas na primeira vez)
 
@@ -437,9 +437,9 @@ curl -X POST http://crud-app.local/api/produtos/1/upload \
 
 ---
 
-## Etapa 9: GUI para Kubernetes (LENS)
+## Etapa 9: GUI para ☸️ Kubernetes (🔭 LENS)
 
-> 📖 **Leia:** [`docs/roteiro-lens.md`](docs/roteiro-lens.md)
+> 📖 **Leia:** [`docs/roteiro-lens.md`](docs/roteiro-lens.md) — 🔭 LENS, 🖥️ k9s
 
 ### Por que usar uma GUI?
 

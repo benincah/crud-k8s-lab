@@ -1,4 +1,4 @@
-# CRUD K8s Lab — Rancher + EFK (Stack Avançada)
+# 🐄 CRUD K8s Lab — Rancher + 🔍 EFK (Stack Avançada)
 
 > **Pré-requisito:** Conclua todas as etapas do [`README_mac.md`](README_mac.md) (etapas 1-9) antes de prosseguir.
 > Certifique-se de que a stack base está rodando (`kubectl get pods -n crud-lab` todos Running).
@@ -36,9 +36,9 @@ kubectl get pods -n monitoring
 
 ---
 
-## Etapa A: EFK — Centralização de Logs
+## Etapa A: 🔍 EFK — Centralização de Logs
 
-> 📖 **Leia:** [`docs/roteiro-efk.md`](docs/roteiro-efk.md)
+> 📖 **Leia:** [`docs/roteiro-efk.md`](docs/roteiro-efk.md) — 🔍 Elasticsearch, 🌊 Fluentd, 📈 Kibana
 
 ### O que é EFK?
 
@@ -228,9 +228,9 @@ Significa que o Elasticsearch não recebeu dados. Verifique:
 
 ---
 
-## Etapa B: Rancher — Gerenciamento Kubernetes
+## Etapa B: 🐄 Rancher — Gerenciamento ☸️ Kubernetes
 
-> 📖 **Leia:** [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md)
+> 📖 **Leia:** [`docs/roteiro-rancher.md`](docs/roteiro-rancher.md) — 🐄 Rancher, 🔐 RBAC, 🔒 TLS
 
 ### O que é Rancher?
 
